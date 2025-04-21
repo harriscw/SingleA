@@ -1,0 +1,12 @@
+name: SingleA
+title: SingleA
+username: harriscw
+account: harriscw
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 14572886
+bundleId: 10152998
+url: https://harriscw.shinyapps.io/SingleA/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE

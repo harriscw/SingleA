@@ -17,20 +17,30 @@ ui <- fluidPage(
 server <- function(input, output) {
   
   access_granted <- reactiveVal(FALSE)
-
-  # read data
-  df = readxl::read_excel("data/A Ball Scouting Reports.xlsx")
   
-  # set filter appropriately
+  # read data
+  df_=readxl::read_excel("data/A Ball Scouting Reports.xlsx")
+  
+  # reactively filter to team
+  df = reactive({
+    print(input$team)
+
+    if(input$team != "All"){
+      df_=df_ %>% filter(Team==input$team)
+    }
+    df_
+    })
+  
+  # set game filter
   thenum=reactive({
     if(input$radio=="all"){
       0
     }else if(input$radio=="second half"){
       8
     }else if(input$radio=="last 3"){
-      max(df$Game)-3
+      max(df()$Game)-3
     }else if(input$radio=="last 6"){
-      max(df$Game)-6
+      max(df()$Game)-6
     }
     
   })
@@ -38,9 +48,9 @@ server <- function(input, output) {
   # display for aggregate data
   output$agg = renderDT({
     
-    df_agg=df %>% 
-      filter(Game>thenum()) %>% 
-      group_by(Name) %>% 
+    df() %>% 
+      filter(Game>thenum()) %>%
+      group_by(Team,Name) %>% 
       summarize(games=n(),
                 order=round(mean(Order),2),
                 Hits=sum(Hits),
@@ -56,7 +66,11 @@ server <- function(input, output) {
   
   #display for raw data
   output$raw = renderDT(
-    df, options = list(lengthChange = FALSE)
+    {
+      
+      df()
+
+      }, options = list(lengthChange = FALSE)
   )
   
   
@@ -73,21 +87,34 @@ server <- function(input, output) {
         textOutput("wrong_pwd")
       )
     } else {
-      tabsetPanel(
-        tabPanel("Aggregate",
-                 
-                 radioButtons("radio", label = "Filter",
-                              choices = list("All Games" = "all", 
-                                             "Second Half" = "second half", 
-                                             "Last 3" = "last 3",
-                                             "Last 6" = "last 6"
-                              ), 
-                              selected = "all"),
-                 DTOutput('agg')
-                 
+      
+      sidebarLayout(
+        sidebarPanel(
+          
+          selectInput("team", 
+                      label = "Team", 
+                      choices = c("All",unique(df_$Team)), 
+                      selected = "All")
+          
         ),
-        tabPanel("Raw",DTOutput('raw'))
-      )
+        mainPanel(
+        tabsetPanel(
+          tabPanel("Aggregate",
+                   
+                   radioButtons("radio", label = "Filter",
+                                choices = list("All Games" = "all", 
+                                               "Second Half" = "second half", 
+                                               "Last 3" = "last 3",
+                                               "Last 6" = "last 6"
+                                ), 
+                                selected = "all"),
+                   DTOutput('agg')
+                   
+          ),
+          tabPanel("Raw",DTOutput('raw'))
+        )#end tabsetpanel
+        )#end mainpanel
+      )#end sidebarlayout
     }
   })
   

@@ -41,7 +41,12 @@ server <- function(input, output) {
     df_agg=df %>% 
       filter(Game>thenum()) %>% 
       group_by(Name) %>% 
-      summarize(games=n(),order=round(mean(Order),2),Hits=sum(Hits),AB=sum(`At Bats`),XBH=sum(XBH),SO=sum(SO)) %>% 
+      summarize(games=n(),
+                order=round(mean(Order),2),
+                Hits=sum(Hits),
+                AB=sum(`At Bats`),
+                XBH=sum(XBH),
+                SO=sum(SO)) %>% 
       ungroup() %>% 
       mutate(AVG=round(Hits/AB,3)) %>% 
       arrange(desc(AVG))

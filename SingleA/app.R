@@ -59,7 +59,8 @@ server <- function(input, output) {
                 SO=sum(SO)) %>% 
       ungroup() %>% 
       mutate(AVG=round(Hits/AB,3)) %>% 
-      arrange(desc(AVG))
+      arrange(desc(AVG)) %>% 
+      mutate(`Percentile (AVG)`=round(100*(nrow(.)-row_number())/nrow(.),2))
     
   }, options = list(lengthChange = FALSE,paging = FALSE)
   )

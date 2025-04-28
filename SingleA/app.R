@@ -48,9 +48,41 @@ server <- function(input, output) {
     
     })
   
-
   
+  ######
+  # display for team data
+  ######
+  
+  output$team = renderDT({
+    
+    # df=df_ %>% filter(Team=="Lugnuts")
+    
+    df() %>% 
+      group_by(Team) %>% 
+      summarize(games=case_when(
+        input$radio=="last 3"~3,
+        input$radio=="last 6"~6,
+        TRUE~length(unique(Game))
+      ),
+                Hits=sum(Hits),
+                AB=sum(`At Bats`),
+                XBH=sum(XBH),
+                SO=sum(SO)
+      ) %>% 
+      ungroup() %>% 
+      mutate(AVG=round(Hits/AB,3),
+             `SO/G`=round(SO/games,2)
+      ) %>% 
+      arrange(desc(AVG))
+    
+  }, options = list(lengthChange = FALSE,paging = FALSE)
+  )
+  
+
+  ######
   # display for aggregate data
+  ######
+  
   output$agg = renderDT({
     
     # df=df_ %>% filter(Team=="Lugnuts")
@@ -74,7 +106,10 @@ server <- function(input, output) {
   }, options = list(lengthChange = FALSE,paging = FALSE)
   )
   
+  ######
   #display for raw data
+  ######
+  
   output$raw = renderDT(
     {
       
@@ -116,7 +151,11 @@ server <- function(input, output) {
         ),
         mainPanel(
         tabsetPanel(
-          tabPanel("Aggregate",
+          tabPanel("Team",
+                   DTOutput('team')
+                   
+          ),
+          tabPanel("Player",
                    DTOutput('agg')
                    
           ),

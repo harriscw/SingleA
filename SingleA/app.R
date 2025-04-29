@@ -2,6 +2,7 @@
 library(shiny)
 library(DT)
 library(dplyr)
+library(ggplot2)
 
 password <- readLines("password.txt")
 
@@ -52,6 +53,7 @@ server <- function(input, output) {
   ######
   # display for team data
   ######
+
   
   output$team = renderDT({
     
@@ -59,10 +61,11 @@ server <- function(input, output) {
     
     df() %>% 
       group_by(Team) %>% 
-      summarize(games=case_when(
-        input$radio=="last 3"~3,
-        input$radio=="last 6"~6,
-        TRUE~length(unique(Game))
+      summarize(
+        games=case_when(
+          input$radio=="last 3"~3,
+          input$radio=="last 6"~6,
+          TRUE~length(unique(Game))
       ),
                 Hits=sum(Hits),
                 AB=sum(`At Bats`),
@@ -80,11 +83,10 @@ server <- function(input, output) {
   
 
   ######
-  # display for aggregate data
+  # display for aggregate player data
   ######
   
-  output$agg = renderDT({
-    
+  aggdata=reactive({
     # df=df_ %>% filter(Team=="Lugnuts")
     
     df() %>% 
@@ -95,16 +97,31 @@ server <- function(input, output) {
                 AB=sum(`At Bats`),
                 XBH=sum(XBH),
                 SO=sum(SO)
-                ) %>% 
+      ) %>% 
       ungroup() %>% 
       mutate(AVG=round(Hits/AB,3),
              `SO/G`=round(SO/games,2)
-             ) %>% 
+      ) %>% 
       arrange(desc(AVG)) %>% 
       mutate(`Percentile (AVG)`=round(100*(nrow(.)-row_number())/nrow(.),2))
     
+  })
+  
+  output$agg = renderDT({
+    
+    aggdata()
+    
   }, options = list(lengthChange = FALSE,paging = FALSE)
   )
+  
+  output$boxplot <- renderPlot( 
+    { 
+      ggplot(aggdata(), aes(x="all", y=AVG)) + 
+        geom_boxplot(outlier.shape = NA) + 
+        geom_jitter(shape=16,aes(color = Team))
+        
+    } 
+  ) 
   
   ######
   #display for raw data
@@ -156,8 +173,8 @@ server <- function(input, output) {
                    
           ),
           tabPanel("Player",
-                   DTOutput('agg')
-                   
+                   DTOutput('agg'),
+                   plotOutput("boxplot",height = "600px", width = "50%")
           ),
           tabPanel("Raw",DTOutput('raw'))
         )#end tabsetpanel

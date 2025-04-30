@@ -59,7 +59,7 @@ server <- function(input, output) {
     
     # df=df_ %>% filter(Team=="Lugnuts")
     
-    df() %>% 
+    df=df() %>% 
       group_by(Team) %>% 
       summarize(
         games=case_when(
@@ -78,6 +78,8 @@ server <- function(input, output) {
       ) %>% 
       arrange(desc(AVG))
     
+    df
+    
   }, options = list(lengthChange = FALSE,paging = FALSE)
   )
   
@@ -89,7 +91,7 @@ server <- function(input, output) {
   aggdata=reactive({
     # df=df_ %>% filter(Team=="Lugnuts")
     
-    df() %>% 
+    aggdata=df() %>% 
       group_by(Team,Name) %>% 
       summarize(games=n(),
                 order=round(mean(Order),2),
@@ -105,6 +107,8 @@ server <- function(input, output) {
       arrange(desc(AVG)) %>% 
       mutate(`Percentile (AVG)`=round(100*(nrow(.)-row_number())/nrow(.),2))
     
+    aggdata
+    
   })
   
   output$agg = renderDT({
@@ -116,9 +120,21 @@ server <- function(input, output) {
   
   output$boxplot <- renderPlot( 
     { 
-      ggplot(aggdata(), aes(x="all", y=AVG)) + 
-        geom_boxplot(outlier.shape = NA) + 
-        geom_jitter(shape=16,aes(color = Team))
+      
+      plotdata=aggdata() %>% 
+        mutate(x_jittered=runif(n()))
+        
+      ggplot() +
+        geom_boxplot(data = plotdata, aes(x = .5, y = AVG), outlier.shape = NA) +
+        geom_point(data = (plotdata %>% filter(Name=="Otis H")),
+                   aes(x = x_jittered, y = AVG),
+                   shape=15, size=5, alpha = 0.7, color="black") +
+        geom_point(data = (plotdata %>% filter(Team=="Lugnuts")),
+                   aes(x = x_jittered, y = AVG),
+                   shape=20, size=5, alpha = 0.7, color="black") +
+        geom_point(data = plotdata, aes(x = x_jittered, y = AVG, color = Team),
+                   size = 2, alpha = 0.7) +
+        xlab("")
         
     } 
   ) 

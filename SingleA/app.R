@@ -31,7 +31,9 @@ server <- function(input, output) {
     }
     
     # reactively filter games
-    if(input$radio=="second half"){
+    if(input$radio=="first half"){
+      df_ = df_ %>% filter(Game<=8)
+    }else if(input$radio=="second half"){
       df_ = df_ %>% filter(Game>8)
     }else if(input$radio=="last 3"){
       df_ = df_ %>% 
@@ -174,7 +176,8 @@ server <- function(input, output) {
                       choices = c("All",unique(df_$Team)), 
                       selected = "All"),
           radioButtons("radio", label = "Filter",
-                       choices = list("All Games" = "all", 
+                       choices = list("All Games" = "all",
+                                      "First Half" = "first half", 
                                       "Second Half" = "second half", 
                                       "Last 3" = "last 3",
                                       "Last 6" = "last 6"

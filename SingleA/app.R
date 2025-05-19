@@ -45,6 +45,10 @@ server <- function(input, output) {
         group_by(Name) %>% 
         dplyr::slice(tail(row_number(),6)) %>% 
         ungroup()
+    }else if(input$radio=="regular season"){
+      df_ = df_ %>% filter(Game<=18)
+    }else if(input$radio=="playoffs"){
+      df_ = df_ %>% filter(Game>18)
     }
     
     df_
@@ -180,7 +184,9 @@ server <- function(input, output) {
                                       "First Half" = "first half", 
                                       "Second Half" = "second half", 
                                       "Last 3" = "last 3",
-                                      "Last 6" = "last 6"
+                                      "Last 6" = "last 6",
+                                      "Regular Season" = "regular season",
+                                      "Playoffs"="playoffs"
                        ), 
                        selected = "all")
           

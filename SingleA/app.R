@@ -154,7 +154,7 @@ server <- function(input, output) {
       
       df()
 
-      }, options = list(lengthChange = FALSE)
+      }
   )
   
   

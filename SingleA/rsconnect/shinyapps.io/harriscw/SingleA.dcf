@@ -5,7 +5,7 @@ account: harriscw
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 14572886
-bundleId: 10365243
+bundleId: 10383511
 url: https://harriscw.shinyapps.io/SingleA/
 version: 1
 asMultiple: FALSE

@@ -32,7 +32,7 @@ server <- function(input, output) {
     
     # reactively filter games
     if(input$radio=="first half"){
-      df_ = df_ %>% filter(Game<=8 & Game<=18)
+      df_ = df_ %>% filter(Game<=8)
     }else if(input$radio=="second half"){
       df_ = df_ %>% filter(Game>8 & Game<=18)
     }else if(input$radio=="second plus"){

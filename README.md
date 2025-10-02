@@ -1,3 +1,3 @@
 # SingleA
 
-Aggregating little league statistics for game prep
+Aggregating little league statistics across the league to inform game prep
